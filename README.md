@@ -25,7 +25,7 @@ Before starting, ensure you have the following software installed:
 ### 2. Database Initialization (MySQL)
 
 1. Open your MySQL Command Line Client or tool of choice (e.g., MySQL Workbench, phpMyAdmin).
-2. Open the [schema.sql](file:///c:/Users/User/OneDrive/Desktop/JAVA%20PROJECT/schema.sql) file.
+2. Open the [schema.sql](file:///c:/Users/User/OneDrive/Desktop/JAVA%20PROJECT/backend/schema.sql) file.
 3. Copy and run the queries inside MySQL. This will:
    - Create a database called `course_db`.
    - Create tables: `students`, `admins`, `courses`, and `enrollments`.
@@ -43,10 +43,10 @@ Before starting, ensure you have the following software installed:
 3. Set the **Target Runtime** to **Apache Tomcat v10.x** (If Tomcat is not registered, click *New Runtime* and select your Tomcat installation directory).
 4. For **Configuration**, make sure **Jakarta EE 9+ Web Profile** is active. Click **Finish**.
 5. Copy the code files from the local directories into the Eclipse project:
-   - Copy contents of `src/` to your Eclipse project `src/` folder.
-   - Copy contents of `WebContent/` to your Eclipse project `WebContent/` (or `src/main/webapp/`) folder.
+   - Copy contents of `backend/src/` to your Eclipse project `src/` folder.
+   - Copy contents of `frontend/` to your Eclipse project `WebContent/` (or `src/main/webapp/`) folder.
 6. Place the JDBC Driver:
-   - Copy the `mysql-connector-j-8.x.x.jar` file and paste it into the `WebContent/WEB-INF/lib/` folder. (This adds it to Tomcat's deployment classpath).
+   - Copy the `mysql-connector-j-8.x.x.jar` file and paste it into the `frontend/WEB-INF/lib/` folder. (This adds it to Tomcat's deployment classpath).
 
 #### Option B: IntelliJ IDEA Ultimate
 1. Open IntelliJ and click **New Project**.
@@ -54,7 +54,7 @@ Before starting, ensure you have the following software installed:
 3. Name the project `CourseRegistrationSystem`, select **Web Application** template, choose Java version, and select **Tomcat Server** under Application Server. Click **Next**.
 4. Set the Specifications version to **Jakarta EE 10**. Click **Create**.
 5. Replace the generated directories with the code files:
-   - Place Java files into the `src/` directory.
+   - Place Java files into the `backend/src/` directory.
    - Place JSP and CSS files into the web application directory (usually `src/main/webapp` or `web`).
 6. Configure Database Driver Dependency:
    - Go to **File ➔ Project Structure ➔ Libraries**.
@@ -65,7 +65,7 @@ Before starting, ensure you have the following software installed:
 
 ### 4. Database Credentials Configuration
 
-1. Locate [DBUtil.java](file:///c:/Users/User/OneDrive/Desktop/JAVA%20PROJECT/src/util/DBUtil.java).
+1. Locate [DBUtil.java](file:///c:/Users/User/OneDrive/Desktop/JAVA%20PROJECT/backend/src/util/DBUtil.java).
 2. Modify the `PASSWORD` static constant to match your local MySQL Root user password:
    ```java
    private static final String PASSWORD = "your_mysql_password_here";

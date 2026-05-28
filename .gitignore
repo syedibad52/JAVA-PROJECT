@@ -1,0 +1,23 @@
+# Apache Tomcat and Server directories
+backend/apache-tomcat/
+tomcat.zip
+*.log
+
+# Java compilation artifacts
+*.class
+
+# IDE configuration files
+.idea/
+*.iml
+.settings/
+.project
+.classpath
+.metadata/
+
+# Node dependencies
+node_modules/
+package-lock.json
+
+# OS and system files
+.DS_Store
+Thumbs.db

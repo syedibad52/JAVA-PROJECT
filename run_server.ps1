@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop"
 
 # Define Paths
 $PROJECT_DIR = "c:\Users\User\OneDrive\Desktop\JAVA PROJECT"
-$TOMCAT_DIR = "$PROJECT_DIR\apache-tomcat"
+$TOMCAT_DIR = "$PROJECT_DIR\backend\apache-tomcat"
 $WEBAPP_NAME = "CourseRegistrationSystem"
 $WEBAPP_DIR = "$TOMCAT_DIR\webapps\$WEBAPP_NAME"
 $MYSQL_JAR_URL = "https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.4.0/mysql-connector-j-8.4.0.jar"
@@ -33,7 +33,7 @@ if (-not (Test-Path $TOMCAT_DIR)) {
 }
 
 # 2. Download MySQL JDBC Connector if not exists
-$libDir = "$PROJECT_DIR\WebContent\WEB-INF\lib"
+$libDir = "$PROJECT_DIR\frontend\WEB-INF\lib"
 if (-not (Test-Path $libDir)) {
     New-Item -ItemType Directory -Path $libDir | Out-Null
 }
@@ -52,13 +52,13 @@ if (Test-Path $WEBAPP_DIR) {
 New-Item -ItemType Directory -Path "$WEBAPP_DIR\WEB-INF\classes" | Out-Null
 New-Item -ItemType Directory -Path "$WEBAPP_DIR\WEB-INF\lib" | Out-Null
 
-# 4. Copy WebContent resources
+# 4. Copy frontend resources
 Write-Host 'Copying JSPs, CSS, and web configurations...' -ForegroundColor Yellow
-Copy-Item -Path "$PROJECT_DIR\WebContent\*" -Destination $WEBAPP_DIR -Recurse -Force
+Copy-Item -Path "$PROJECT_DIR\frontend\*" -Destination $WEBAPP_DIR -Recurse -Force
 
 # 5. Compile Java source files
 Write-Host 'Compiling Java Servlet and DAO classes...' -ForegroundColor Yellow
-$javaFiles = Get-ChildItem -Path "$PROJECT_DIR\src" -Filter "*.java" -Recurse | Select-Object -ExpandProperty FullName
+$javaFiles = Get-ChildItem -Path "$PROJECT_DIR\backend\src" -Filter "*.java" -Recurse | Select-Object -ExpandProperty FullName
 
 if ($javaFiles.Count -eq 0) {
     Write-Error "No Java source files found under 'src' directory!"
@@ -75,11 +75,26 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Host 'Java compilation successful. Classes built.' -ForegroundColor Green
 
-# 6. Launch Tomcat Server
-Write-Host 'Starting Apache Tomcat Web Server...' -ForegroundColor Yellow
-Start-Process -FilePath "$TOMCAT_DIR\bin\startup.bat" -WorkingDirectory "$TOMCAT_DIR\bin"
+# 6. Stop any existing Tomcat on port 8080
+Write-Host 'Checking for existing Tomcat processes...' -ForegroundColor Yellow
+try {
+    $existingPid = (Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue).OwningProcess | Select-Object -Unique
+    if ($existingPid) {
+        Write-Host "Stopping existing process on port 8080 (PID: $existingPid)..." -ForegroundColor Yellow
+        Stop-Process -Id $existingPid -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 2
+    }
+} catch {
+    # No process on 8080, continue
+}
 
+# 7. Launch Tomcat Server (foreground - press Ctrl+C to stop)
 Write-Host '=============================================' -ForegroundColor Green
-Write-Host 'SUCCESS! Server is starting up in a new terminal window.' -ForegroundColor Green
+Write-Host 'SUCCESS! Starting server...' -ForegroundColor Green
 Write-Host 'Open your browser at: http://localhost:8080/CourseRegistrationSystem/' -ForegroundColor Cyan
+Write-Host 'Press Ctrl+C to stop the server.' -ForegroundColor Yellow
 Write-Host '=============================================' -ForegroundColor Green
+
+$env:CATALINA_HOME = $TOMCAT_DIR
+$env:CATALINA_BASE = $TOMCAT_DIR
+& "$TOMCAT_DIR\bin\catalina.bat" run

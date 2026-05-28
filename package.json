@@ -1,0 +1,10 @@
+{
+  "name": "course-registration",
+  "scripts": {
+    "dev": "powershell -ExecutionPolicy Bypass -File run_server.ps1",
+    "start": ".\\backend\\apache-tomcat\\bin\\startup.bat",
+    "stop": ".\\backend\\apache-tomcat\\bin\\shutdown.bat",
+    "restart": ".\\backend\\apache-tomcat\\bin\\shutdown.bat && timeout 2 && .\\backend\\apache-tomcat\\bin\\startup.bat",
+    "db": "mysql -u root -p course_db < backend\\schema.sql"
+  }
+}
