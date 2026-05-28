@@ -1,45 +1,53 @@
-# =========================================================
-# Multi-Stage Dockerfile for Course Registration System
-# =========================================================
+# ============================================================
+# Dockerfile for Course Registration System (Tomcat 10 + JDK 17)
+# ============================================================
+# Multi-stage build:
+#   Stage 1 (builder): Compile Java source files
+#   Stage 2 (runtime): Deploy compiled classes + frontend to Tomcat
 
-# --- STAGE 1: Build Stage (Compilation) ---
-FROM openjdk:17-jdk-slim AS builder
-WORKDIR /app
+# ---- Stage 1: Build ----
+FROM eclipse-temurin:17-jdk AS builder
 
-# Copy the backend source files and frontend resources
-COPY backend/src /app/src
-COPY frontend /app/frontend
+# Install Tomcat for the servlet-api.jar (needed for compilation only)
+ENV TOMCAT_VERSION=10.1.55
+RUN apt-get update && apt-get install -y curl && \
+    curl -fsSL https://dlcdn.apache.org/tomcat/tomcat-10/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz \
+    | tar xz -C /opt && \
+    mv /opt/apache-tomcat-${TOMCAT_VERSION} /opt/tomcat
 
-# Create directory for compiled .class files
-RUN mkdir -p /app/classes
+# Download MySQL JDBC connector
+RUN curl -fsSL https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.4.0/mysql-connector-j-8.4.0.jar \
+    -o /opt/mysql-connector-j-8.4.0.jar
 
-# Download Tomcat 10 Servlet API (Jakarta EE) and MySQL JDBC connector
-RUN apt-get update && apt-get install -y wget && \
-    wget https://repo1.maven.org/maven2/jakarta/servlet/jakarta.servlet-api/6.0.0/jakarta.servlet-api-6.0.0.jar -O /app/servlet-api.jar && \
-    wget https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.4.0/mysql-connector-j-8.4.0.jar -O /app/mysql-connector.jar
+WORKDIR /build
 
-# Recursively locate all Java files and compile them
-RUN find src -name "*.java" > sources.txt && \
-    javac -encoding UTF-8 -cp "/app/servlet-api.jar:/app/mysql-connector.jar" -d /app/classes @sources.txt
+# Copy source code
+COPY backend/src/ ./src/
+COPY frontend/ ./webapp/
 
-# --- STAGE 2: Runtime Stage (Tomcat 10 Deployment) ---
+# Compile Java files
+RUN mkdir -p ./webapp/WEB-INF/classes ./webapp/WEB-INF/lib && \
+    cp /opt/mysql-connector-j-8.4.0.jar ./webapp/WEB-INF/lib/ && \
+    find ./src -name "*.java" > sources.txt && \
+    javac -encoding UTF-8 \
+          -cp "/opt/tomcat/lib/servlet-api.jar:/opt/mysql-connector-j-8.4.0.jar" \
+          -d ./webapp/WEB-INF/classes \
+          @sources.txt
+
+# ---- Stage 2: Runtime ----
 FROM tomcat:10.1-jdk17-temurin
-WORKDIR /usr/local/tomcat
 
-# Clean up default Tomcat webapps
-RUN rm -rf webapps/ROOT webapps/CourseRegistrationSystem
+# Remove default Tomcat webapps
+RUN rm -rf /usr/local/tomcat/webapps/*
 
-# Copy frontend pages into the ROOT webapp directory
-COPY --from=builder /app/frontend webapps/ROOT
+# Copy the built web application
+COPY --from=builder /build/webapp/ /usr/local/tomcat/webapps/ROOT/
 
-# Copy the compiled Java classes into the WEB-INF/classes folder
-COPY --from=builder /app/classes webapps/ROOT/WEB-INF/classes
+# Copy the MySQL connector JAR
+COPY --from=builder /opt/mysql-connector-j-8.4.0.jar /usr/local/tomcat/webapps/ROOT/WEB-INF/lib/
 
-# Ensure the MySQL connector JAR is in the webapp's lib folder
-COPY --from=builder /app/mysql-connector.jar webapps/ROOT/WEB-INF/lib/
-
-# Expose Tomcat default HTTP port
+# Expose the default Tomcat port
 EXPOSE 8080
 
-# Launch Tomcat
+# Use Render's PORT env variable if available, otherwise default to 8080
 CMD ["catalina.sh", "run"]

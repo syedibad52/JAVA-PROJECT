@@ -32,6 +32,12 @@ if (-not (Test-Path $TOMCAT_DIR)) {
     Write-Host "Tomcat directory already exists." -ForegroundColor Green
 }
 
+# Auto-configure local Tomcat port to 8085 and shutdown port to 8006 to avoid conflicts with global system services (e.g. Tomcat 11)
+$serverXmlPath = "$TOMCAT_DIR\conf\server.xml"
+if (Test-Path $serverXmlPath) {
+    (Get-Content $serverXmlPath) -replace 'port="8080"', 'port="8085"' -replace 'port="8005"', 'port="8006"' | Set-Content $serverXmlPath
+}
+
 # 2. Download MySQL JDBC Connector if not exists
 $libDir = "$PROJECT_DIR\frontend\WEB-INF\lib"
 if (-not (Test-Path $libDir)) {
@@ -75,23 +81,23 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Host 'Java compilation successful. Classes built.' -ForegroundColor Green
 
-# 6. Stop any existing Tomcat on port 8080
-Write-Host 'Checking for existing Tomcat processes...' -ForegroundColor Yellow
+# 6. Stop any existing Tomcat on port 8085
+Write-Host 'Checking for existing Tomcat processes on port 8085...' -ForegroundColor Yellow
 try {
-    $existingPid = (Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue).OwningProcess | Select-Object -Unique
+    $existingPid = (Get-NetTCPConnection -LocalPort 8085 -ErrorAction SilentlyContinue).OwningProcess | Select-Object -Unique
     if ($existingPid) {
-        Write-Host "Stopping existing process on port 8080 (PID: $existingPid)..." -ForegroundColor Yellow
+        Write-Host "Stopping existing process on port 8085 (PID: $existingPid)..." -ForegroundColor Yellow
         Stop-Process -Id $existingPid -Force -ErrorAction SilentlyContinue
         Start-Sleep -Seconds 2
     }
 } catch {
-    # No process on 8080, continue
+    # No process on 8085, continue
 }
 
 # 7. Launch Tomcat Server (foreground - press Ctrl+C to stop)
 Write-Host '=============================================' -ForegroundColor Green
 Write-Host 'SUCCESS! Starting server...' -ForegroundColor Green
-Write-Host 'Open your browser at: http://localhost:8080/CourseRegistrationSystem/' -ForegroundColor Cyan
+Write-Host 'Open your browser at: http://localhost:8085/CourseRegistrationSystem/' -ForegroundColor Cyan
 Write-Host 'Press Ctrl+C to stop the server.' -ForegroundColor Yellow
 Write-Host '=============================================' -ForegroundColor Green
 

@@ -5,13 +5,16 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBUtil {
-    private static final String DEFAULT_URL  = "jdbc:mysql://localhost:3306/course_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-    private static final String DEFAULT_USER = "root";
-    private static final String DEFAULT_PASS = "syedsyed"; // Updated password
+    // Read database config from environment variables (for cloud deployment),
+    // falling back to local defaults for development
+    private static final String URL      = getEnvOrDefault("DB_URL",      "jdbc:mysql://localhost:3306/course_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC");
+    private static final String USER     = getEnvOrDefault("DB_USER",     "root");
+    private static final String PASSWORD = getEnvOrDefault("DB_PASSWORD", "syedsyed");
 
-    private static final String URL      = System.getenv("DB_URL") != null ? System.getenv("DB_URL") : DEFAULT_URL;
-    private static final String USER     = System.getenv("DB_USER") != null ? System.getenv("DB_USER") : DEFAULT_USER;
-    private static final String PASSWORD = System.getenv("DB_PASS") != null ? System.getenv("DB_PASS") : DEFAULT_PASS;
+    private static String getEnvOrDefault(String key, String defaultValue) {
+        String value = System.getenv(key);
+        return (value != null && !value.isEmpty()) ? value : defaultValue;
+    }
 
     static {
         try {

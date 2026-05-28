@@ -1,23 +1,24 @@
-# Apache Tomcat and Server directories
+# Tomcat runtime (downloaded by run_server.ps1)
 backend/apache-tomcat/
-tomcat.zip
-*.log
 
-# Java compilation artifacts
-*.class
-
-# IDE configuration files
+# IDE files
 .idea/
 *.iml
-.settings/
-.project
-.classpath
-.metadata/
+.vscode/
 
-# Node dependencies
+# OS files
+.DS_Store
+Thumbs.db
+
+# Java class files
+*.class
+
+# JVM crash logs
+hs_err_pid*.log
+
+# Node
 node_modules/
 package-lock.json
 
-# OS and system files
-.DS_Store
-Thumbs.db
+# Downloaded JDBC driver (downloaded at build time)
+frontend/WEB-INF/lib/mysql-connector-j-*.jar
