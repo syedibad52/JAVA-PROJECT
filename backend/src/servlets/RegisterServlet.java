@@ -2,6 +2,7 @@ package servlets;
 
 import dao.StudentDAO;
 import model.Student;
+import util.ExcelExporter;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -34,6 +35,8 @@ public class RegisterServlet extends HttpServlet {
 
         StudentDAO dao = new StudentDAO();
         if (dao.register(s)) {
+            // Auto-update the Excel file on Desktop with the new registration
+            ExcelExporter.exportStudentRegistrations();
             // Registration success, redirect to login
             res.sendRedirect(req.getContextPath() + "/login?msg=registered");
         } else {

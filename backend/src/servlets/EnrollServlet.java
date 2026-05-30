@@ -2,6 +2,7 @@ package servlets;
 
 import dao.EnrollmentDAO;
 import model.Student;
+import util.ExcelExporter;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -36,9 +37,17 @@ public class EnrollServlet extends HttpServlet {
         if ("enroll".equals(actionStr)) {
             boolean success = dao.enroll(student.getId(), courseId);
             msg = success ? "success" : "failed";
+            if (success) {
+                // Auto-update the Excel file on Desktop with the new enrollment
+                ExcelExporter.exportCourseEnrollments();
+            }
         } else if ("drop".equals(actionStr)) {
             boolean success = dao.unenroll(student.getId(), courseId);
             msg = success ? "dropped" : "failed";
+            if (success) {
+                // Auto-update the Excel file on Desktop after dropping a course
+                ExcelExporter.exportCourseEnrollments();
+            }
         } else {
             msg = "failed";
         }

@@ -19,18 +19,32 @@ RUN apt-get update && apt-get install -y curl && \
 RUN curl -fsSL https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.4.0/mysql-connector-j-8.4.0.jar \
     -o /opt/mysql-connector-j-8.4.0.jar
 
+# Download Apache POI libraries for Excel export
+RUN mkdir -p /opt/poi && \
+    curl -fsSL https://repo1.maven.org/maven2/org/apache/poi/poi/5.2.5/poi-5.2.5.jar -o /opt/poi/poi-5.2.5.jar && \
+    curl -fsSL https://repo1.maven.org/maven2/org/apache/poi/poi-ooxml/5.2.5/poi-ooxml-5.2.5.jar -o /opt/poi/poi-ooxml-5.2.5.jar && \
+    curl -fsSL https://repo1.maven.org/maven2/org/apache/poi/poi-ooxml-lite/5.2.5/poi-ooxml-lite-5.2.5.jar -o /opt/poi/poi-ooxml-lite-5.2.5.jar && \
+    curl -fsSL https://repo1.maven.org/maven2/org/apache/xmlbeans/xmlbeans/5.1.1/xmlbeans-5.1.1.jar -o /opt/poi/xmlbeans-5.1.1.jar && \
+    curl -fsSL https://repo1.maven.org/maven2/org/apache/commons/commons-collections4/4.4/commons-collections4-4.4.jar -o /opt/poi/commons-collections4-4.4.jar && \
+    curl -fsSL https://repo1.maven.org/maven2/commons-io/commons-io/2.15.1/commons-io-2.15.1.jar -o /opt/poi/commons-io-2.15.1.jar && \
+    curl -fsSL https://repo1.maven.org/maven2/org/apache/commons/commons-compress/1.25.0/commons-compress-1.25.0.jar -o /opt/poi/commons-compress-1.25.0.jar && \
+    curl -fsSL https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.22.1/log4j-api-2.22.1.jar -o /opt/poi/log4j-api-2.22.1.jar && \
+    curl -fsSL https://repo1.maven.org/maven2/org/apache/commons/commons-math3/3.6.1/commons-math3-3.6.1.jar -o /opt/poi/commons-math3-3.6.1.jar && \
+    curl -fsSL https://repo1.maven.org/maven2/com/zaxxer/SparseBitSet/1.3/SparseBitSet-1.3.jar -o /opt/poi/SparseBitSet-1.3.jar
+
 WORKDIR /build
 
 # Copy source code
 COPY backend/src/ ./src/
 COPY frontend/ ./webapp/
 
-# Compile Java files
+# Compile Java files (include POI JARs in classpath)
 RUN mkdir -p ./webapp/WEB-INF/classes ./webapp/WEB-INF/lib && \
     cp /opt/mysql-connector-j-8.4.0.jar ./webapp/WEB-INF/lib/ && \
+    cp /opt/poi/*.jar ./webapp/WEB-INF/lib/ && \
     find ./src -name "*.java" > sources.txt && \
     javac -encoding UTF-8 \
-          -cp "/opt/tomcat/lib/servlet-api.jar:/opt/mysql-connector-j-8.4.0.jar" \
+          -cp "/opt/tomcat/lib/servlet-api.jar:/opt/mysql-connector-j-8.4.0.jar:/opt/poi/*" \
           -d ./webapp/WEB-INF/classes \
           @sources.txt
 
@@ -40,11 +54,11 @@ FROM tomcat:10.1-jdk17-temurin
 # Remove default Tomcat webapps
 RUN rm -rf /usr/local/tomcat/webapps/*
 
-# Copy the built web application
+# Copy the built web application (includes all JARs in WEB-INF/lib)
 COPY --from=builder /build/webapp/ /usr/local/tomcat/webapps/ROOT/
 
-# Copy the MySQL connector JAR
-COPY --from=builder /opt/mysql-connector-j-8.4.0.jar /usr/local/tomcat/webapps/ROOT/WEB-INF/lib/
+# Create data directory for Excel exports on the server
+RUN mkdir -p /data/exports
 
 # Expose the default Tomcat port
 EXPOSE 8080

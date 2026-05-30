@@ -20,5 +20,5 @@ hs_err_pid*.log
 node_modules/
 package-lock.json
 
-# Downloaded JDBC driver (downloaded at build time)
-frontend/WEB-INF/lib/mysql-connector-j-*.jar
+# Downloaded JARs (downloaded at build time)
+frontend/WEB-INF/lib/*.jar

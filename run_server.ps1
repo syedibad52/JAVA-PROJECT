@@ -50,6 +50,44 @@ if (-not (Test-Path $mysqlJarPath)) {
     Write-Host 'MySQL JDBC Driver downloaded.' -ForegroundColor Green
 }
 
+# 2b. Download Apache POI JARs for Excel export (if not already present)
+$poiVersion = "5.2.5"
+$poiBaseUrl = "https://repo1.maven.org/maven2"
+$poiJars = @(
+    @{ name = "poi-$poiVersion.jar";           url = "$poiBaseUrl/org/apache/poi/poi/$poiVersion/poi-$poiVersion.jar" },
+    @{ name = "poi-ooxml-$poiVersion.jar";     url = "$poiBaseUrl/org/apache/poi/poi-ooxml/$poiVersion/poi-ooxml-$poiVersion.jar" },
+    @{ name = "poi-ooxml-lite-$poiVersion.jar"; url = "$poiBaseUrl/org/apache/poi/poi-ooxml-lite/$poiVersion/poi-ooxml-lite-$poiVersion.jar" },
+    @{ name = "xmlbeans-5.1.1.jar";            url = "$poiBaseUrl/org/apache/xmlbeans/xmlbeans/5.1.1/xmlbeans-5.1.1.jar" },
+    @{ name = "commons-collections4-4.4.jar";  url = "$poiBaseUrl/org/apache/commons/commons-collections4/4.4/commons-collections4-4.4.jar" },
+    @{ name = "commons-io-2.15.1.jar";         url = "$poiBaseUrl/commons-io/commons-io/2.15.1/commons-io-2.15.1.jar" },
+    @{ name = "commons-compress-1.25.0.jar";   url = "$poiBaseUrl/org/apache/commons/commons-compress/1.25.0/commons-compress-1.25.0.jar" },
+    @{ name = "log4j-api-2.22.1.jar";          url = "$poiBaseUrl/org/apache/logging/log4j/log4j-api/2.22.1/log4j-api-2.22.1.jar" },
+    @{ name = "commons-math3-3.6.1.jar";       url = "$poiBaseUrl/org/apache/commons/commons-math3/3.6.1/commons-math3-3.6.1.jar" },
+    @{ name = "SparseBitSet-1.3.jar";          url = "$poiBaseUrl/com/zaxxer/SparseBitSet/1.3/SparseBitSet-1.3.jar" }
+)
+
+$needDownload = $false
+foreach ($jar in $poiJars) {
+    if (-not (Test-Path "$libDir\$($jar.name)")) {
+        $needDownload = $true
+        break
+    }
+}
+
+if ($needDownload) {
+    Write-Host 'Downloading Apache POI libraries for Excel export...' -ForegroundColor Yellow
+    foreach ($jar in $poiJars) {
+        $jarPath = "$libDir\$($jar.name)"
+        if (-not (Test-Path $jarPath)) {
+            Write-Host "  Downloading $($jar.name)..." -ForegroundColor Yellow
+            Invoke-WebRequest -Uri $jar.url -OutFile $jarPath
+        }
+    }
+    Write-Host 'Apache POI libraries downloaded.' -ForegroundColor Green
+} else {
+    Write-Host 'Apache POI libraries already present.' -ForegroundColor Green
+}
+
 # 3. Create deployment directories
 Write-Host 'Preparing webapp deployment directories...' -ForegroundColor Yellow
 if (Test-Path $WEBAPP_DIR) {
@@ -70,7 +108,9 @@ if ($javaFiles.Count -eq 0) {
     Write-Error "No Java source files found under 'src' directory!"
 }
 
-$classpath = "$TOMCAT_DIR\lib\servlet-api.jar;$mysqlJarPath"
+# Build classpath with all JARs in the lib directory
+$allJars = Get-ChildItem -Path $libDir -Filter "*.jar" | Select-Object -ExpandProperty FullName
+$classpath = "$TOMCAT_DIR\lib\servlet-api.jar;" + ($allJars -join ";")
 $classesOut = "$WEBAPP_DIR\WEB-INF\classes"
 
 # Run compiler
