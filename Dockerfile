@@ -60,7 +60,10 @@ COPY --from=builder /build/webapp/ /usr/local/tomcat/webapps/ROOT/
 # Create data directory for Excel exports on the server
 RUN mkdir -p /data/exports
 
-# Expose the default Tomcat port
+# Configure Tomcat to listen on Render's dynamic PORT environment variable (defaults to 8080)
+RUN sed -i 's/port="8080"/port="${PORT:-8080}"/g' /usr/local/tomcat/conf/server.xml
+
+# Expose port (Render will automatically detect this or use the PORT env var)
 EXPOSE 8080
 
 # Use Render's PORT env variable if available, otherwise default to 8080
