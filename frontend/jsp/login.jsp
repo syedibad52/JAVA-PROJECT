@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Secure login portal for students and administrators to access the Course Registration System.">
   <title>Course Hub – Portal Sign In</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
   <!-- Google Fonts Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -65,5 +66,27 @@
       </footer>
     </div>
   </main>
+
+  <!-- Cold-start loading overlay -->
+  <div id="splash-overlay" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#090d16 0%,#111827 50%,#1e1b4b 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;transition:opacity 0.5s ease;">
+    <div style="font-size:3.5rem;animation:pulse 1.5s infinite ease-in-out;">🎓</div>
+    <div style="font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:800;background:linear-gradient(to right,#a5b4fc,#6366f1,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Course Hub</div>
+    <div style="display:flex;gap:6px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#6366f1;animation:bounce 1.2s infinite ease-in-out 0s;"></span>
+      <span style="width:8px;height:8px;border-radius:50%;background:#818cf8;animation:bounce 1.2s infinite ease-in-out 0.2s;"></span>
+      <span style="width:8px;height:8px;border-radius:50%;background:#c084fc;animation:bounce 1.2s infinite ease-in-out 0.4s;"></span>
+    </div>
+    <p style="font-family:'Outfit',sans-serif;font-size:0.85rem;color:#6b7280;">Starting up server, please wait...</p>
+  </div>
+  <style>
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+    @keyframes bounce{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-8px);opacity:1}}
+  </style>
+  <script>
+    window.addEventListener('load', function() {
+      var overlay = document.getElementById('splash-overlay');
+      if (overlay) { overlay.style.opacity = '0'; setTimeout(function(){ overlay.style.display='none'; }, 500); }
+    });
+  </script>
 </body>
 </html>
