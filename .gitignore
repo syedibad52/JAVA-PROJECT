@@ -22,3 +22,9 @@ package-lock.json
 
 # Downloaded JARs (downloaded at build time)
 frontend/WEB-INF/lib/*.jar
+
+# Environment secrets - NEVER commit this file!
+.env
+
+# Cloud-only schema (contains no sensitive data but keep local)
+backend/schema_cloud.sql
