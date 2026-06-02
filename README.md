@@ -89,8 +89,8 @@ To test the system features, use the following seeded accounts:
 
 
 ### 🧑🎓 Student Portal Verification
-- **Email**: `alice@university.edu` | **Password**: `student123`
-- **Email**: `bob@university.edu` | **Password**: `student123`
+- **Email**: `aarav@university.edu` | **Password**: `student123`
+- **Email**: `ananya@university.edu` | **Password**: `student123`
 - **Features to Verify**:
   - Browse available courses in a responsive card grid.
   - Review courses credits, schedule times, and instructors.
