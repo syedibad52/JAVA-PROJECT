@@ -51,19 +51,11 @@ RUN mkdir -p ./webapp/WEB-INF/classes ./webapp/WEB-INF/lib && \
 # ---- Stage 2: Runtime ----
 FROM tomcat:10.1-jdk17-temurin
 
-# Install MariaDB server and clean apt cache to keep image small
-RUN apt-get update && \
-    apt-get install -y mariadb-server && \
-    rm -rf /var/lib/apt/lists/*
-
 # Remove default Tomcat webapps
 RUN rm -rf /usr/local/tomcat/webapps/*
 
 # Copy the built web application (includes all JARs in WEB-INF/lib)
 COPY --from=builder /build/webapp/ /usr/local/tomcat/webapps/ROOT/
-
-# Copy the schema file for database initialization
-COPY backend/schema.sql /usr/local/tomcat/schema.sql
 
 # Create data directory for Excel exports on the server
 RUN mkdir -p /data/exports
@@ -71,12 +63,8 @@ RUN mkdir -p /data/exports
 # Configure Tomcat to listen on Render's dynamic PORT environment variable (defaults to 8080)
 RUN sed -i 's/port="8080"/port="${PORT:-8080}"/g' /usr/local/tomcat/conf/server.xml
 
-# Expose port
+# Expose port (Render will automatically detect this or use the PORT env var)
 EXPOSE 8080
 
-# Copy startup script
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# Start services using entrypoint script
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# Use Render's PORT env variable if available, otherwise default to 8080
+CMD ["catalina.sh", "run"]
