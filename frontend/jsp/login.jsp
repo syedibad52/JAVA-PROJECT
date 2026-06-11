@@ -15,6 +15,19 @@
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
 <body class="auth-body">
+  <!-- College Branding Banner -->
+  <div class="college-banner" id="college-banner">
+    <div class="college-banner-glow"></div>
+    <div class="college-banner-content">
+      <div class="college-crest" aria-hidden="true">
+        <img src="${pageContext.request.contextPath}/images/atria-logo.png" alt="Atria Institute of Technology" class="college-logo-img" />
+      </div>
+      <h1 class="college-name" id="college-name">ATRIA INSTITUTE OF TECHNOLOGY</h1>
+      <div class="college-divider"></div>
+      <p class="college-dept" id="college-dept">Information Science and Engineering</p>
+    </div>
+  </div>
+
   <main class="auth-container">
     <div class="auth-card">
       <header class="auth-header-block">

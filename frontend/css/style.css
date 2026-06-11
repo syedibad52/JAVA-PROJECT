@@ -128,11 +128,116 @@ code {
    ========================================================================== */
 .auth-body {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
   padding: 2rem 1rem;
+  gap: 0;
 }
+
+/* ---------- College Branding Banner ---------- */
+.college-banner {
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
+  padding: 2rem 2rem 1.5rem;
+  position: relative;
+  animation: bannerFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.college-banner-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px;
+  height: 120px;
+  background: radial-gradient(ellipse, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.college-banner-content {
+  position: relative;
+  z-index: 1;
+}
+
+.college-crest {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  animation: crestPulse 4s infinite ease-in-out;
+}
+
+.college-logo-img {
+  width: 120px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 18px rgba(99, 102, 241, 0.35));
+  transition: var(--transition-smooth);
+}
+
+.college-crest:hover .college-logo-img {
+  filter: drop-shadow(0 0 28px rgba(99, 102, 241, 0.55));
+  transform: scale(1.05);
+}
+
+.college-name {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  line-height: 1.3;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #e0e7ff 0%, #a5b4fc 25%, #6366f1 50%, #c084fc 75%, #e0e7ff 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerText 4s linear infinite;
+  margin-bottom: 0.6rem;
+}
+
+.college-divider {
+  width: 60px;
+  height: 3px;
+  margin: 0 auto 0.6rem;
+  background: linear-gradient(90deg, transparent, #6366f1, #c084fc, transparent);
+  border-radius: 2px;
+  animation: dividerGlow 3s ease-in-out infinite alternate;
+}
+
+.college-dept {
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  opacity: 0.85;
+}
+
+@keyframes shimmerText {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+@keyframes bannerFadeIn {
+  0%   { opacity: 0; transform: translateY(-18px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes crestPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+  50%      { box-shadow: 0 0 20px 4px rgba(99, 102, 241, 0.2); }
+}
+
+@keyframes dividerGlow {
+  0%   { opacity: 0.5; width: 40px; }
+  100% { opacity: 1;   width: 80px; }
+}
+/* ---------- End College Banner ---------- */
 
 .auth-container {
   width: 100%;
@@ -978,6 +1083,20 @@ textarea.form-control {
   }
   .auth-card {
     padding: 2rem 1.5rem;
+  }
+  .college-banner {
+    padding: 1.5rem 1rem 1rem;
+  }
+  .college-name {
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+  }
+  .college-dept {
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+  }
+  .college-logo-img {
+    width: 80px;
   }
   .form-grid-row {
     flex-direction: column;
