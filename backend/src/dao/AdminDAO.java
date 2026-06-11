@@ -9,7 +9,7 @@ public class AdminDAO {
      * Ensures the admins table exists and contains the default admin account
      * with the correct password. Uses UPSERT to fix any corrupted passwords.
      */
-    private void ensureDefaultAdmin() {
+    private void ensureDefaultAdmin() throws SQLException {
         String createTable = "CREATE TABLE IF NOT EXISTS admins ("
                 + "id INT AUTO_INCREMENT PRIMARY KEY, "
                 + "username VARCHAR(50) UNIQUE NOT NULL, "
@@ -33,9 +33,6 @@ public class AdminDAO {
                     System.out.println("[AdminDAO] Default admin account ensured (admin / admin123)");
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("[AdminDAO] Warning: Could not ensure default admin: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -44,7 +41,7 @@ public class AdminDAO {
      * Password is encrypted using MD5 to match the database values.
      * Automatically seeds/fixes the default admin before authentication.
      */
-    public boolean authenticate(String username, String password) {
+    public boolean authenticate(String username, String password) throws SQLException {
         // Ensure the default admin exists with the correct password
         ensureDefaultAdmin();
 
@@ -60,11 +57,7 @@ public class AdminDAO {
                 }
                 return matched;
             }
-        } catch (SQLException e) {
-            System.err.println("[AdminDAO] Database error during authentication: " + e.getMessage());
-            e.printStackTrace();
         }
-        return false;
     }
 }
 

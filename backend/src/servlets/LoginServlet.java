@@ -7,6 +7,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.sql.SQLException;
 
 @WebServlet(urlPatterns = { "/login", "/LoginServlet" })
 public class LoginServlet extends HttpServlet {
@@ -21,27 +22,33 @@ public class LoginServlet extends HttpServlet {
 
         HttpSession session = req.getSession();
 
-        if ("admin".equals(role)) {
-            AdminDAO adminDAO = new AdminDAO();
-            // Validate admin credentials against MySQL database table
-            if (adminDAO.authenticate(emailOrUser, password)) {
-                session.setAttribute("admin", emailOrUser);
-                res.sendRedirect(req.getContextPath() + "/admin/dashboard");
+        try {
+            if ("admin".equals(role)) {
+                AdminDAO adminDAO = new AdminDAO();
+                // Validate admin credentials against MySQL database table
+                if (adminDAO.authenticate(emailOrUser, password)) {
+                    session.setAttribute("admin", emailOrUser);
+                    res.sendRedirect(req.getContextPath() + "/admin/dashboard");
+                } else {
+                    req.setAttribute("error", "Invalid admin credentials");
+                    req.getRequestDispatcher("/jsp/login.jsp").forward(req, res);
+                }
             } else {
-                req.setAttribute("error", "Invalid admin credentials");
-                req.getRequestDispatcher("/jsp/login.jsp").forward(req, res);
+                StudentDAO studentDAO = new StudentDAO();
+                // Validate student credentials using MD5 hash comparison
+                Student student = studentDAO.authenticate(emailOrUser, password);
+                if (student != null) {
+                    session.setAttribute("student", student);
+                    res.sendRedirect(req.getContextPath() + "/student/courses");
+                } else {
+                    req.setAttribute("error", "Invalid email or password");
+                    req.getRequestDispatcher("/jsp/login.jsp").forward(req, res);
+                }
             }
-        } else {
-            StudentDAO studentDAO = new StudentDAO();
-            // Validate student credentials using MD5 hash comparison
-            Student student = studentDAO.authenticate(emailOrUser, password);
-            if (student != null) {
-                session.setAttribute("student", student);
-                res.sendRedirect(req.getContextPath() + "/student/courses");
-            } else {
-                req.setAttribute("error", "Invalid email or password");
-                req.getRequestDispatcher("/jsp/login.jsp").forward(req, res);
-            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            req.setAttribute("error", "Database connection failed! Please check your database settings/credentials. Error: " + e.getMessage());
+            req.getRequestDispatcher("/jsp/login.jsp").forward(req, res);
         }
     }
 

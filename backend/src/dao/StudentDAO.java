@@ -12,7 +12,7 @@ public class StudentDAO {
      * Authenticates a student using email and password.
      * Password is encrypted using MD5 to match the database values.
      */
-    public Student authenticate(String email, String password) {
+    public Student authenticate(String email, String password) throws SQLException {
         String sql = "SELECT * FROM students WHERE email=? AND password=MD5(?)";
         try (Connection con = DBUtil.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -28,8 +28,6 @@ public class StudentDAO {
                     );
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return null;
     }
